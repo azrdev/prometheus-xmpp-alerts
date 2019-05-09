@@ -22,8 +22,9 @@ version_string = '.'.join(map(str, __version__))
 
 def parse_timestring(ts):
     # strptime doesn't understand nanoseconds, so discard the last three digits
-    ts = re.sub('\\.([0-9]{6})([0-9]{3})Z$', r'.\1Z', ts)
-    return datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%fZ')
+    # also convert timezone from hh:mm to hhmm
+    tsc = re.sub('\\.(\d{6})(\d{3})([+-])(\d\d):(\d\d)', r'.\1\3\4\5', ts)
+    return datetime.strptime(tsc, '%Y-%m-%dT%H:%M:%S.%f%z')
 
 
 def create_message(message):
