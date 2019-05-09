@@ -109,8 +109,9 @@ with open(args.config_path) as f:
 
 app = XmppApp(config['jid'], config.get('password'),
               config.get('amtool_allowed', [config['to_jid']]))
-app.connect()
 loop = asyncio.get_event_loop()
+app.loop = loop
+app.connect()
 
 prometheus_app = make_wsgi_app()
 
