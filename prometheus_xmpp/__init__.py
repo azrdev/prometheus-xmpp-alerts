@@ -30,10 +30,11 @@ def parse_timestring(ts):
 def create_message(message):
     """Create the message to deliver."""
     for alert in message['alerts']:
+        annotations = alert.get('annotations')
         yield '%s, %s, %s' % (
             message['status'].upper(),
             parse_timestring(alert['startsAt']).isoformat(timespec='seconds'),
-            alert['annotations']['summary'])
+            annotations.get('summary') if annotations else '')
 
 
 def run_amtool(args):
