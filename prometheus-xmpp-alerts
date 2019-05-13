@@ -156,4 +156,11 @@ web_app.add_routes([
     web.get('/metrics', serve_metrics),
 ])
 
-web.run_app(web_app, host=config['listen_address'], port=config['listen_port'])
+loop = asyncio.get_event_loop()
+runner = web.AppRunner(web_app)
+loop.run_until_complete(runner.setup())
+site = web.TCPSite(runner, host=config['listen_address'], port=config['listen_port'])
+loop.run_until_complete(site.start())
+
+loop.run_forever()
+
