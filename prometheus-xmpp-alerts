@@ -48,7 +48,7 @@ class XmppApp(slixmpp.ClientXMPP):
         self.auto_authorize = True
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("message", self.message)
-        self.add_event_handler("disconnected", self.lost)
+        self.add_event_handler("disconnected", self.connect)
         self.register_plugin('xep_0030')  # Service Discovery
         self.register_plugin('xep_0004')  # Data Forms
         self.register_plugin('xep_0060')  # PubSub
@@ -62,10 +62,6 @@ class XmppApp(slixmpp.ClientXMPP):
         """
         self.send_presence(ptype='available', pstatus='Active')
         self.get_roster()
-
-    def lost(self, event):
-        logging.info("Connection lost, exiting.")
-        sys.exit(1)
 
     def message(self, msg):
         """Handle an incoming message.
