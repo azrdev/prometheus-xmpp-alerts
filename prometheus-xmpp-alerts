@@ -48,11 +48,15 @@ class XmppApp(slixmpp.ClientXMPP):
         self.auto_authorize = True
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("message", self.message)
-        self.add_event_handler("disconnected", self.connect)
+        self.add_event_handler("disconnected", self.quit)
         self.register_plugin('xep_0030')  # Service Discovery
         self.register_plugin('xep_0004')  # Data Forms
         self.register_plugin('xep_0060')  # PubSub
         self.register_plugin('xep_0199')  # XMPP Ping
+
+    def quit(self, *args):
+        print('exit' + str(args))
+        sys.exit(1)
 
     def start(self, event):
         """Process the session_start event.
@@ -62,6 +66,10 @@ class XmppApp(slixmpp.ClientXMPP):
         """
         self.send_presence(ptype='available', pstatus='Active')
         self.get_roster()
+
+    def data_received(self, data):
+        logger.debug('message: %s' % data)
+        super().data_received(data)
 
     def message(self, msg):
         """Handle an incoming message.
@@ -80,6 +88,7 @@ class XmppApp(slixmpp.ClientXMPP):
                     response = "Unauthorized JID."
             elif args[0] == 'help':
                 response = "Supported commands: help, alert, silence."
+                logger.debug('help requested')
             else:
                 response = "Unknown command: %s" % args[0]
             msg.reply(response).send()
@@ -99,7 +108,10 @@ parser.add_argument("-d", "--debug", help="set logging to DEBUG",
 args = parser.parse_args()
 
 # Setup logging.
-logging.basicConfig(level=args.loglevel, format='%(levelname)-8s %(message)s')
+logging.basicConfig(level=args.loglevel, format='%(levelname)-8s %(name)-48s %(message)s')
+logger = logging.getLogger('toplevel')
+logger.setLevel(logging.NOTSET)
+logger.debug('logging startup %s' % logger.getEffectiveLevel())
 
 with open(args.config_path) as f:
     config = yaml.load(f)
